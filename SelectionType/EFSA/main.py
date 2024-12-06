@@ -1,6 +1,10 @@
-from sklearn.feature_selection import chi2, SelectKBest
-from sklearn.linear_model import LogisticRegression
 import numpy as np
+import pandas as pd
+from sklearn.feature_selection import chi2, SelectKBest, RFE
+from sklearn.linear_model import LogisticRegression, Lasso
+from sklearn.preprocessing import StandardScaler
+from EFSA.anova import ANOVASelector
+import statsmodels.api as sm
 
 class FeatureSelector:
     def __init__(self, X, y):
@@ -21,60 +25,125 @@ class FeatureSelector:
         # Store feature names if available
         self.feature_names = (X.columns.tolist() if hasattr(X, 'columns') 
                                else [f'feature_{i}' for i in range(X.shape[1])])
-    
-    def wrapper_method(self, estimator=LogisticRegression(), k_features=5):
+        
+        # Standardize features for some methods
+        self.scaler = StandardScaler()
+        self.X_scaled = self.scaler.fit_transform(self.X)
+
+    def backward_elimination(self, significance_level=0.05, verbose=True):
         """
-        Recursive Feature Elimination (RFE) - Wrapper Method
-        
+        Perform backward elimination to select statistically significant features.
+
         Parameters:
-        -----------
-        estimator : sklearn estimator, optional (default=LogisticRegression())
-        k_features : int, optional (default=5)
-            Number of features to select
-        
+        - significance_level (float): Threshold for p-value to determine feature significance.
+        - verbose (bool): If True, prints progress and removed features.
+
         Returns:
-        --------
-        selected_features : list
-            Names of selected features
+        - selected_features (list): List of statistically significant features.
+        - final_model (statsmodels.regression.linear_model.RegressionResults): Final fitted OLS model.
         """
-        pass
-    
-    
-    def embedded_method(self, k_features=5):
-        pass
-    
-    
-    
-    
-    def chi_square_test(self, k_features=5):
+        # Convert to DataFrame for statsmodels
+        X_df = pd.DataFrame(self.X, columns=self.feature_names)
+        
+        # Add a constant (intercept) to the features
+        X_with_const = sm.add_constant(X_df)
+        
+        # Get the initial list of features
+        features = X_with_const.columns.tolist()
+        
+        while len(features) > 0:
+            # Fit OLS model with current features
+            X_temp = X_with_const[features]
+            model = sm.OLS(self.y, X_temp).fit()
+            
+            # Get p-values for all features
+            p_values = model.pvalues
+            max_p_value = p_values.max()  # Find the highest p-value
+            excluded_feature = p_values.idxmax()  # Feature with the highest p-value
+
+            if max_p_value > significance_level:
+                # Remove the least significant feature
+                features.remove(excluded_feature)
+                if verbose:
+                    print(f"Removing '{excluded_feature}' with p-value {max_p_value:.4f}")
+            else:
+                # Stop when all features are significant
+                break
+
+        # Fit the final model with selected features
+        selected_features = features
+        final_model = sm.OLS(self.y, X_with_const[selected_features]).fit()
+
+        if verbose:
+            print("\nBackward Elimination Complete.")
+            print(f"Selected Features: {selected_features[1:]}")  # Exclude the constant from the output
+        
+        return selected_features[1:], final_model  # Exclude 'const' in the returned list
+
+    def embedded_method(self, k_features=50, alpha=1.0):
         """
-        Chi-Square Test for Feature Selection
+        Lasso (L1) Embedded Feature Selection
         
         Parameters:
         -----------
-        k_features : int, optional (default=5)
+        k_features : int, optional (default=50)
             Number of top features to select
+        alpha : float, optional (default=1.0)
+            Regularization strength for Lasso
         
         Returns:
         --------
         selected_features : list
             Names of selected features
         """
-        # Ensure non-negative values for chi-square test
-        X_positive = self.X - self.X.min()
+        # Create Lasso model
+        lasso = Lasso(alpha=alpha, random_state=42)
+        lasso.fit(self.X_scaled, self.y)
         
-        # Perform Chi-Square Test
-        selector = SelectKBest(score_func=chi2, k=k_features)
-        selector.fit(X_positive, self.y)
+        # Get feature importances (absolute coefficients)
+        feature_importances = np.abs(lasso.coef_)
+        
+        # Get indices of top k features
+        top_feature_indices = np.argsort(feature_importances)[-k_features:]
         
         # Get selected feature names
-        selected_features = [self.feature_names[i] for i in selector.get_support(indices=True)]
+        selected_features = [self.feature_names[i] for i in top_feature_indices]
+        
+        return selected_features, feature_importances[top_feature_indices]
+
+    def wrapper_method(self, k_features=50, estimator=None):
+        """
+        Recursive Feature Elimination (RFE) Wrapper Method
+        
+        Parameters:
+        -----------
+        k_features : int, optional (default=50)
+            Number of top features to select
+        estimator : sklearn estimator, optional (default=LogisticRegression)
+            Base estimator for recursive feature elimination
+        
+        Returns:
+        --------
+        selected_features : list
+            Names of selected features
+        """
+        # Use LogisticRegression as default estimator if not provided
+        if estimator is None:
+            estimator = LogisticRegression(max_iter=1000)
+        
+        # Create RFE selector
+        rfe_selector = RFE(estimator=estimator, n_features_to_select=k_features)
+        rfe_selector = rfe_selector.fit(self.X_scaled, self.y)
+        
+        # Get selected feature indices
+        selected_indices = rfe_selector.get_support(indices=True)
+        
+        # Get selected feature names
+        selected_features = [self.feature_names[i] for i in selected_indices]
         
         return selected_features
 
-
     def anova_test(self, k_features=15):
-        
         """
         ANOVA F-Test for Feature Selection
         
@@ -92,115 +161,29 @@ class FeatureSelector:
         selected_features, f_scores = selector.select_k_best(self.X, self.y, k_features)
         
         return selected_features, f_scores
-    
-    
 
-
-class ANOVASelector:
-    def __init__(self, feature_names):
-        self.feature_names = feature_names
-        
-    def calculate_f_statistic(self, X, y):
+    def comprehensive_feature_selection(self, k_features=50):
         """
-        Calculate F-statistic for each feature
+        Combine multiple feature selection methods
         
         Parameters:
-        X: array-like of shape (n_samples, n_features)
-        y: array-like of shape (n_samples,)
+        -----------
+        k_features : int, optional (default=50)
+            Number of top features to select
         
         Returns:
-        f_scores: array of F-statistics for each feature
+        --------
+        final_selected_features : list
+            Comprehensive list of selected features
         """
-        n_samples, n_features = X.shape
-        classes = np.unique(y)
-        n_classes = len(classes)
+        # Apply different feature selection methods
+        anova_features, _ = self.anova_test(k_features//3)
+        anova_features = set(anova_features)
+        embedded_features, _ = self.embedded_method(k_features//3)
+        embedded_features = set(embedded_features)
+        wrapper_features = set(self.wrapper_method(k_features//3))
         
-        f_scores = np.zeros(n_features) # Initialize array to store F-scores
+        # Combine and get unique features
+        combined_features = list(anova_features.union(embedded_features, wrapper_features))
         
-        for feature_idx in range(n_features):
-            
-            # Values of the feature 
-            feature_values = X[:, feature_idx] # X[:, feature_idx] is the feature column
-            
-            # Calculate overall mean
-            grand_mean = np.mean(feature_values)
-            
-            # Calculate between-group sum of squares (SSB) SSB = Σni(yi - ȳ)2
-            # where yi is the mean of the class and ȳ is the grand mean
-            
-            
-            ssb = 0
-            for class_label in classes:
-                class_mask = (y == class_label)
-                class_values = feature_values[class_mask]
-                class_mean = np.mean(class_values)
-                class_size = len(class_values)
-                
-                ssb += class_size * (class_mean - grand_mean) ** 2
-                
-            # Calculate within-group sum of squares (SSW)  SSW = ΣΣ(yij - yi)2
-            # where yij is the value of the j-th observation in the i-th class and yi is the mean of the i-th class
-        
-            ssw = 0
-            for class_label in classes:
-                class_mask = (y == class_label)
-                class_values = feature_values[class_mask]
-                class_mean = np.mean(class_values)
-                
-                ssw += np.sum((class_values - class_mean) ** 2)
-            
-            # Calculate degrees of freedom
-            df_between = n_classes - 1
-            df_within = n_samples - n_classes
-            
-            # Calculate mean squares
-            msb = ssb / df_between
-            msw = ssw / df_within
-            
-            # Calculate F-statistic
-            f_scores[feature_idx] = msb / msw if msw != 0 else 0
-            
-        return f_scores
-    
-    def select_k_best(self, X, y, k):
-        """
-        Select k best features based on F-statistics
-        
-        Parameters:
-        X: array-like of shape (n_samples, n_features)
-        y: array-like of shape (n_samples,)
-        k: number of features to select
-        
-        Returns:
-        selected_features: list of k best feature names
-        """
-        # Convert inputs to numpy arrays
-        X = np.array(X)
-        y = np.array(y)
-        
-        # Calculate F-statistics for all features
-        f_scores = self.calculate_f_statistic(X, y)
-        
-        # Get indices of k features with highest F-scores
-        
-        top_k_indices = np.argsort(f_scores)[-k:] # argosrt returns the indices of the sorted array
-        
-        # Get feature names for selected features
-        selected_features = [self.feature_names[i] for i in top_k_indices]
-        
-        return selected_features, f_scores
-
-    def get_feature_scores(self, X, y):
-        """
-        Get F-scores for all features in the dataset
-        using ANOVA F-test
-    
-        Parameters:
-        X: array-like of shape (n_samples, n_features)
-        y: array-like of shape (n_samples,)
-        
-        Returns:
-        feature_scores: dictionary mapping feature names to F-scores
-        """
-        f_scores = self.calculate_f_statistic(X, y)
-        return dict(zip(self.feature_names, f_scores))
+        return combined_features[:k_features]
