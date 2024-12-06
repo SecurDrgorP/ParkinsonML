@@ -1,24 +1,22 @@
 # Parkinson's Disease Detection Using Machine Learning  
 
 ## **Overview**  
-This repository contains a project aimed at detecting Parkinson's Disease through machine learning techniques applied to vocal characteristics. The models are built using supervised learning algorithms and feature selection/reduction methods to optimize prediction accuracy and computational efficiency.  
+This project aims to detect Parkinson's Disease using vocal data by applying machine learning algorithms. Three models — CART (Decision Tree), SVM (Support Vector Machines), and CatBoost — are implemented across different feature processing methods. Both standard libraries and custom-built implementations are utilized to evaluate model performance.  
 
-## **Key Features**  
-- **Dataset**: Parkinson’s Disease Classification dataset from the UCI Machine Learning Repository.  
-- **Algorithms Used**: CART (Decision Tree), Support Vector Machines (SVM), and CatBoost.  
-- **Feature Selection Methods**: Wrapper (Backward Elimination), Embedding (LassoCV), and Chi-Square.  
-- **Dimensionality Reduction**: PCA (Principal Component Analysis).  
-- **Two Implementation Approaches**:  
-  1. Using libraries (scikit-learn, CatBoost).  
-  2. Custom-built implementations from scratch.  
-
-## **Project Structure**  
-- **/data**: Contains the dataset and preprocessed files.  
-- **/notebooks**: Jupyter Notebooks for experimentation and visualization.  
-- **/src**: Code for models, feature selection, and preprocessing.  
-- **README.md**: Overview of the project.  
-
-## **Usage**  
-1. Clone the repository:  
-   ```bash  
-   git clone https://github.com/your-username/parkinsons-disease-detection.git
+## **Project Features**  
+- **Dataset**: Parkinson’s Disease Classification from the UCI Machine Learning Repository.  
+- **Algorithms**:  
+  - CART (Decision Tree)  
+  - Support Vector Machines (SVM)  
+  - CatBoost  
+- **Methods**:  
+  1. **All Features** (`Toutes caractéristiques`): Using all features in the dataset.  
+  2. **Feature Selection** (`La Sélection des caractéristiques`): Combining features from:  
+     - Wrapper Method (Backward Elimination)  
+     - Embedding Method (LassoCV)  
+     - ANOVA  
+  3. **Dimensionality Reduction** (`Réduction des données`): Principal Component Analysis (PCA).  
+- **Implementation Approaches**:  
+  - Using standard libraries like scikit-learn and CatBoost.  
+  - Using custom-built implementations for each algorithm.  
+ 
