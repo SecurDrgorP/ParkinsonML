@@ -1,4 +1,9 @@
 venv/
+<<<<<<< HEAD
 
 # ignore __pycache__ directories
 __pycache__/
+=======
+__PyCache__/
+.ipynb_checkpoints/
+>>>>>>> df7fe21715f962f1a8a838a7cc0a2c79ca5adefc
