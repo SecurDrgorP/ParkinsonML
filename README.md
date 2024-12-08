@@ -21,27 +21,72 @@ This project aims to detect Parkinson's Disease using vocal data by applying mac
   - Using custom-built implementations for each algorithm.  
  
 
-## **Trying the Project**
-1. **Clone the Repository**:  
+
+## **Getting Started with Parkinson's Disease Detection Project**
+
+### Prerequisites
+- Python 3.8+ installed
+- Git installed on your system
+- Basic understanding of Python and machine learning concepts
+
+### 🚀 Project Setup
+
+1. **Clone the Repository**:
    ```bash
+   # Clone the project repository
    git clone https://github.com/AbdulMoizAli/Parkinsons-Disease-Detection.git
+   
+   # Move into the project directory
+   cd Parkinsons-Disease-Detection
+   ```
 
-    ```
-2 . **Navigate to the Project Directory**:
-    ```bash
-    cd Parkinsons-Disease-Detection
-    ```
-3. **(Optional) Create a Virtual Environment**:
-    ```bash
-    python -m venv env
-    source env/bin/activate
-    ```
+2. **Set Up a Virtual Environment** (Recommended):
+   ```bash
+   # Create a new virtual environment
+   python -m venv env
+   
+   # Activate the virtual environment
+   # On Windows
+   env\Scripts\activate
+   
+   # On macOS/Linux
+   source env/bin/activate
+   ```
 
-4. **Install the Required Libraries**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-5. **Run the NoteBooks**:
-    - [CART Implementation](ImplCART.ipynb)
-    - [CatBoost Implementation](ImplCatBoost.ipynb)
-    - [SVM Implementation](ImplSVM.ipynb)
+3. **Install Dependencies**:
+   ```bash
+   # Install required Python libraries
+   pip install -r requirements.txt
+   ```
+
+### 🔬 Exploring Model Implementations
+
+This project includes three different machine learning model implementations for Parkinson's Disease detection:
+
+| Notebook | Description | Algorithm |
+|----------|-------------|-----------|
+| [CART Implementation](ImplCART.ipynb) | Classification and Regression Tree | Decision Tree |
+| [CatBoost Implementation](ImplCatBoost.ipynb) | Gradient Boosting Algorithm | Ensemble Learning |
+| [SVM Implementation](ImplSVM.ipynb) | Support Vector Machine | Kernel-based Classification |
+
+### 🖥️ Running the Notebooks
+
+To run the notebooks, ensure you have Jupyter Notebook or Jupyter Lab installed:
+
+```bash
+# If not already installed
+pip install jupyter
+
+# Launch Jupyter Notebook
+jupyter notebook
+```
+
+### 💡 Additional Recommendations
+- Ensure you have the latest version of pip: `python -m pip install --upgrade pip`
+- Check the project's documentation for specific model usage and dataset details
+- Consider using Jupyter Lab for a more integrated development experience
+
+### 🛠️ Troubleshooting
+- If you encounter library compatibility issues, verify your Python version
+- Make sure all dependencies in `requirements.txt` are compatible
+- Check the project's GitHub issues for known problems and solutions
