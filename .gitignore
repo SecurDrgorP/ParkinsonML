@@ -2,4 +2,5 @@ venv/
 
 # ignore __pycache__ directories
 __pycache__/
- catboost_info/
+catboost_info/
+catboost_info/*
