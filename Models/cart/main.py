@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from collections import Counter
-from cart.treeVisulizer import TreeVisualizer
+from Models.cart.treeVisulizer import TreeVisualizer
 
 class Node:
     def __init__(self, feature=None, threshold=None, left=None, right=None, value=None):

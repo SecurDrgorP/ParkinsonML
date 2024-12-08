@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.feature_selection import chi2, SelectKBest, RFE
 from sklearn.linear_model import LogisticRegression, Lasso
 from sklearn.preprocessing import StandardScaler
-from EFSA.anova import ANOVASelector
+from SelectionType.EFSA.anova import ANOVASelector
 import statsmodels.api as sm
 
 class FeatureSelector:
