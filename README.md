@@ -20,3 +20,18 @@ This project aims to detect Parkinson's Disease using vocal data by applying mac
   - Using standard libraries like scikit-learn and CatBoost.  
   - Using custom-built implementations for each algorithm.  
  
+
+## **Trying the Project**
+1. **Clone the Repository**:  
+   ```bash
+   git clone
+
+    ```
+2. **Install the Required Libraries**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+3. **Run the NoteBooks**:
+    - [CART Implementation](ImplCART.ipynb)
+    - [CatBoost Implementation](ImplCatBoost.ipynb)
+    - [SVM Implementation](ImplSVM.ipynb)
