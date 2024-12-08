@@ -24,14 +24,24 @@ This project aims to detect Parkinson's Disease using vocal data by applying mac
 ## **Trying the Project**
 1. **Clone the Repository**:  
    ```bash
-   git clone
+   git clone https://github.com/AbdulMoizAli/Parkinsons-Disease-Detection.git
 
     ```
-2. **Install the Required Libraries**:
+2 . **Navigate to the Project Directory**:
+    ```bash
+    cd Parkinsons-Disease-Detection
+    ```
+3. **(Optional) Create a Virtual Environment**:
+    ```bash
+    python -m venv env
+    source env/bin/activate
+    ```
+
+4. **Install the Required Libraries**:
     ```bash
     pip install -r requirements.txt
     ```
-3. **Run the NoteBooks**:
+5. **Run the NoteBooks**:
     - [CART Implementation](ImplCART.ipynb)
     - [CatBoost Implementation](ImplCatBoost.ipynb)
     - [SVM Implementation](ImplSVM.ipynb)
