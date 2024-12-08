@@ -110,11 +110,6 @@ jupyter notebook
 ## 🤝 Contributions
 Contributions, issues, and feature requests are welcome! Please check the issues page.
 
-## 📜 License
-[Specify your license here]
-
-## 📞 Contact
-[Your contact information or project maintainer's details]
 
 ---
 
